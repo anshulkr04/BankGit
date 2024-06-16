@@ -22,21 +22,32 @@ const User = mongoose.model("User", {
 
 
 
-app.post("/Registration", function (req, res) {
+async function findUser(email_in) {
+    const user = await User.findOne({ email: email_in }).exec();
+    console.log("bc", user); // This prints the actual user document if found, or null if not found
+    console.log("Kunal Lodu hai");
+    return user;
+}
+
+
+app.post("/Registration", async function (req, res) {
 
     try {
-        const newUser = new User({
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password
-        });
-        const foundUser = User.findOne({ email: req.body.email });
-        if(foundUser){
-            res.redirect("http://127.0.0.1:5501/Registration.html");
+        let foundUser = findUser(req.body.email);
+        await sleep(5000);
+        if(foundUser.email != null){
+            console.log("Lauda user saved:", foundUser);
+            res.send("User already exists");
+            
         }
         else{
+            const newUser = new User({
+                name: req.body.name,
+                email: req.body.email,
+                password: req.body.password
+            });
             newUser.save();
-            console.log("New user saved:", newUser);
+            console.log("New user saved:", foundUser.email);
             res.redirect("http://127.0.0.1:5501/Login.html");
         }
         
