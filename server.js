@@ -20,9 +20,6 @@ const User = mongoose.model("User", {
     password: String
 });
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function findUser(email_in) {
     const user = await User.findOne({ email: email_in }).exec();
