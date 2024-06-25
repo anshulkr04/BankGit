@@ -20,12 +20,13 @@ const User = mongoose.model("User", {
     password: String
 });
 
-
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function findUser(email_in) {
     const user = await User.findOne({ email: email_in }).exec();
-    console.log("bc", user); // This prints the actual user document if found, or null if not found
-    console.log("Kunal Lodu hai");
+    console.log(user); // This prints the actual user document if found, or null if not found
     return user;
 }
 
@@ -33,12 +34,9 @@ async function findUser(email_in) {
 app.post("/Registration", async function (req, res) {
 
     try {
-        let foundUser = findUser(req.body.email);
-        await sleep(5000);
-        if(foundUser.email != null){
-            console.log("Lauda user saved:", foundUser);
+        let foundUser = await findUser(req.body.email);
+        if(foundUser != null){
             res.send("User already exists");
-            
         }
         else{
             const newUser = new User({
@@ -47,7 +45,7 @@ app.post("/Registration", async function (req, res) {
                 password: req.body.password
             });
             newUser.save();
-            console.log("New user saved:", foundUser.email);
+            console.log("New user saved:", newUser);
             res.redirect("http://127.0.0.1:5501/Login.html");
         }
         
@@ -57,6 +55,3 @@ app.post("/Registration", async function (req, res) {
         res.status(500).send("Internal Server Error");
     }
 });
-
-
-
