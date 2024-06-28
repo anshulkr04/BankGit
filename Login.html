@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Bank Login</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('toggle-password').addEventListener('click', function () {
+                var password = document.getElementById('password');
+                if (password.type === 'password') {
+                    password.type = 'text';
+                } else {
+                    password.type = 'password';
+                }
+            });
+        });
+    </script>
 </head>
+
 <body>
     <h1>Welcome to Bank Login</h1>
-    
+
     <form action="http://localhost:3000/Login" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="loginusername" name="email" required><br><br>
-        
+        <label for="email">Username:</label>
+        <input type="text" id="email" name="email" required><br><br>
+
         <label for="password">Password:</label>
-        <input type="password" id="loginpassword" name="password" required><br><br>
-        
+        <input type="password" id="password" name="password" required>&nbsp&nbsp<input type="checkbox"
+            id="toggle-password">Show Password</input><br><br>
+
         <input type="submit" value="Login">
     </form>
-    <p>Don't have an account? <a href="Registration.html">Register here</a></p>
-    </form>
+    <p>Don't have an account? <a href="Registration">Register here</a></p>
+
+    <br></br>
+    <div id="message"></div>
 </body>
+
 </html>

@@ -1,28 +1,29 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-
+require('dotenv').config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+const dbURI = process.env.MONGODB_URI;
+console.log("Connecting to database at", dbURI);
 mongoose.connect(
-    "mongodb+srv://ansh7026:sgSjYzg0Z3LYXeNc@cluster0.ynj7jhm.mongodb.net/bankdata",
+    dbURI,
 );
 
 app.listen(3000, function () {
     console.log("Server is running on port 3000");
 });
 
-app.get("/Login.html", function (req, res) {
+app.get("/Login", function (req, res) {
     res.sendFile(__dirname + "/Login.html");
 });
 
-app.get("/Registration.html", function (req, res) {
+app.get("/Registration", function (req, res) {
     res.sendFile(__dirname + "/Registration.html");
 });
 
-app.get("/userProfile.html" , function(req,res){
+app.get("/userProfile" , function(req,res){
     res.sendFile(__dirname + "/userProfile.html");
 });
 
@@ -30,7 +31,8 @@ app.get("/userProfile.html" , function(req,res){
 const User = mongoose.model("User", {
     name: String,
     email: String,
-    password: String
+    password: String,
+    bankbalance: Number
 });
 
 async function findUser(email_in) {
@@ -51,11 +53,12 @@ app.post("/Registration", async function (req, res) {
             const newUser = new User({
                 name: req.body.name,
                 email: req.body.email,
-                password: req.body.password
+                password: req.body.password,
+                bankbalance: 0
             });
             newUser.save();
             console.log("New user saved:", newUser);
-            res.redirect("http://localhost:3000/Login.html");
+            res.redirect("http://localhost:3000/Login");
         }
         
 
@@ -65,12 +68,17 @@ app.post("/Registration", async function (req, res) {
     }
 });
 
+const currentUser = mongoose.model("currentUser", {
+    email: String,
+    password: String
+});
+
 app.post("/Login", async function (req, res) {
     try {
         let foundUser = await findUser(req.body.email);
         if(foundUser != null){
             if(foundUser.password == req.body.password){
-                res.redirect("http://localhost:3000/userProfile.html");
+                res.redirect("http://localhost:3000/userProfile/?email="+req.body.email);
             }
             else{
                 res.send("Incorrect Password");
@@ -83,5 +91,20 @@ app.post("/Login", async function (req, res) {
     } catch (error) {
         console.error("Error saving new user:", error);
         res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get('/user', async (req, res) => {
+    const email = req.query.email;
+    try {
+        const user = await User.findOne({ email: email }).exec();
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });

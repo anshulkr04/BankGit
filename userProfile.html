@@ -1,59 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Profile Showcase</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <script>
+        async function fetchUserDetails() {
+            const email = new URLSearchParams(window.location.search).get('email');
+            if (email) {
+                try {
+                    const response = await fetch(`/user?email=${email}`);
+                    if (response.ok) {
+                        const user = await response.json();
+                        if (user.bankbalance == null) {
+                            user.bankbalance = 0;
+                        }
+                        document.getElementById('name').innerText = user.name;
+                        document.getElementById('email').innerText = user.email;
+                        document.getElementById('bankbalance').innerText = user.bankbalance;
+                    } else {
+                        const error = await response.json();
+                        document.getElementById('message').innerText = error.message;
+                    }
+                } catch (error) {
+                    console.error('Error fetching user details:', error);
+                    document.getElementById('message').innerText = 'An error occurred. Please try again.';
+                }
+            } else {
+                document.getElementById('message').innerText = 'No email provided.';
+            }
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+
+        function onClick(){
+            document.getElementById('user').innerHTML = "Transaction successful";
         }
-        h1 {
-            text-align: center;
-        }
-        .profile {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .profile img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-right: 20px;
-        }
-        .profile h2 {
-            margin: 0;
-        }
-        .profile p {
-            margin: 0;
-        }
-    </style>
+
+        document.addEventListener('DOMContentLoaded', fetchUserDetails);
+    </script>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Profile Showcase</h1>
-        <div class="profile">
-            <img src="profile-image.jpg" alt="Profile Image">
-            <div>
-                <h2>John Doe</h2>
-                <p>Software Engineer</p>
-                <p>Location: New York, USA</p>
-            </div>
-        </div>
-        <div class="profile">
-            <img src="profile-image.jpg" alt="Profile Image">
-            <div>
-                <h2>Jane Smith</h2>
-                <p>Web Developer</p>
-                <p>Location: London, UK</p>
-            </div>
-        </div>
-    </div>
+    <h1>Welcome</h1>
+    <h2>Here are your details:</h2>
+    <br>
+    <p id="message"></p>
+    <p>Name: <span id="name"></span></p>
+    <br>
+    <p>Email: <span id="email"></span></p>
+    <br>
+    <p>Bank Balance: <span id="bankbalance"></span></p>
+    <br>
+    <hr>
+    <form action="http://localhost:3000/Transaction" method="POST">
+        <h1>Send money to your friends</h1>
+        <input type="email" id="friendEmail" placeholder="email" name="email">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="number" id="amount" placeholder="Enter amount" step="1000" name="amount">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onclick="onClick()">Submit</button>
+    </form>
+
 </body>
+
 </html>
